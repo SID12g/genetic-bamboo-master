@@ -3,10 +3,39 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Webpack</title>
-    <script src="https://unpkg.com/lodash@4.17.12/lodash.js"></script>
+    <title>Bamboo Master</title>
   </head>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #wrap {
+      display: flex;
+      justify-content: space-between;
+      width: 800px;
+    }
+
+    #title {
+    }
+
+    #seconds {
+      background-color: #cecece;
+      font-size: 20px;
+      padding: 12px 20px;
+      border-radius: 16px;
+      font-weight: 600;
+    }
+  </style>
   <body>
+    <div id="wrap">
+      <h1 id="title"></h1>
+      <p id="seconds"></p>
+    </div>
+    <div id="canvas"></div>
+
     <script src="index.js"></script>
   </body>
 </html>
