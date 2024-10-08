@@ -1,28 +1,82 @@
 import p5 from "p5";
+import catImage from "./assets/cat.png";
+
+let cat;
+let catScalar = 0.1;
+let x, y;
+let isMovingLeft, isMovingRight, isMovingUp, isMovingDown;
 
 const sketch = (p) => {
-  p.setup = () => {
-    const canvas = p.createCanvas(880, 600);
-    canvas.parent("canvas"); // 캔버스를 특정 div에 추가
-
-    p.angleMode(10);
-    p.background(220);
-    p.square(20, 20, 100);
-    p.rect(100, 40, 200, 100);
-    p.ellipse(540, 100, 300, 100);
-    p.circle(560, 100, 100);
-    p.arc(540, 100, 300, 100, 180, 360, 20);
-    p.line(20, 200, 200, 350);
-    p.triangle(250, 350, 350, 200, 450, 350);
-    p.quad(500, 250, 550, 200, 700, 300, 650, 350);
-
-    const titleOutput = document.getElementById("title");
-    titleOutput.innerText = "죽림고수";
-    const secondsOutput = document.getElementById("seconds");
-    secondsOutput.innerText = "N초";
+  p.preload = () => {
+    cat = p.loadImage(catImage);
   };
 
-  p.draw = () => {};
+  p.setup = () => {
+    const canvas = p.createCanvas(880, 600);
+    canvas.parent("canvas");
+    x = 440;
+    y = 300;
+    isMovingLeft = false;
+    isMovingRight = false;
+    isMovingUp = false;
+    isMovingDown = false;
+
+    const secondsOutput = document.getElementById("seconds");
+    if (secondsOutput) {
+      secondsOutput.innerText = "N초";
+    }
+  };
+
+  p.draw = () => {
+    p.background(220);
+
+    if (isMovingUp) {
+      y -= 5;
+    }
+    if (isMovingDown) {
+      y += 5;
+    }
+    if (isMovingLeft) {
+      x -= 5;
+    }
+    if (isMovingRight) {
+      x += 5;
+    }
+
+    const catWidth = cat.width * catScalar;
+    const catHeight = cat.height * catScalar;
+    p.image(cat, x, y, catWidth, catHeight);
+  };
+
+  p.keyPressed = () => {
+    if (p.key === "ArrowUp") {
+      isMovingUp = true;
+    }
+    if (p.key === "ArrowDown") {
+      isMovingDown = true;
+    }
+    if (p.key === "ArrowLeft") {
+      isMovingLeft = true;
+    }
+    if (p.key === "ArrowRight") {
+      isMovingRight = true;
+    }
+  };
+
+  p.keyReleased = () => {
+    if (p.key === "ArrowUp") {
+      isMovingUp = false;
+    }
+    if (p.key === "ArrowDown") {
+      isMovingDown = false;
+    }
+    if (p.key === "ArrowLeft") {
+      isMovingLeft = false;
+    }
+    if (p.key === "ArrowRight") {
+      isMovingRight = false;
+    }
+  };
 };
 
 new p5(sketch);

@@ -15,10 +15,11 @@
     #wrap {
       display: flex;
       justify-content: space-between;
-      width: 800px;
+      width: 880px;
     }
 
     #title {
+      font-size: 32px;
     }
 
     #seconds {
@@ -28,14 +29,34 @@
       border-radius: 16px;
       font-weight: 600;
     }
+
+    #footer {
+      color: #404040;
+      font-size: 20px;
+      margin-top: 40px;
+    }
+
+    #link {
+      text-decoration: none;
+      color: #000000;
+      font-weight: 600;
+    }
   </style>
   <body>
     <div id="wrap">
-      <h1 id="title"></h1>
+      <h1 id="title">죽림고수</h1>
       <p id="seconds"></p>
     </div>
     <div id="canvas"></div>
-
+    <footer id="footer">
+      made by
+      <a
+        id="link"
+        target="_blank"
+        href="https://github.com/sid12g/bamboo-master"
+        >sid12g</a
+      >
+    </footer>
     <script src="index.js"></script>
   </body>
 </html>
