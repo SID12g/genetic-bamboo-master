@@ -30,21 +30,24 @@ const sketch = (p) => {
   p.draw = () => {
     p.background(220);
 
-    if (isMovingUp) {
+    // 이미지 크기 조절
+    const catWidth = cat.width * catScalar;
+    const catHeight = cat.height * catScalar;
+
+    // 이미지 이동
+    if (isMovingUp && y > 0) {
       y -= 5;
     }
-    if (isMovingDown) {
+    if (isMovingDown && y < p.height - catHeight) {
       y += 5;
     }
-    if (isMovingLeft) {
+    if (isMovingLeft && x > 0) {
       x -= 5;
     }
-    if (isMovingRight) {
+    if (isMovingRight && x < p.width - catWidth) {
       x += 5;
     }
 
-    const catWidth = cat.width * catScalar;
-    const catHeight = cat.height * catScalar;
     p.image(cat, x, y, catWidth, catHeight);
   };
 
