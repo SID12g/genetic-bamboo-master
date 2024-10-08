@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bamboo Master</title>
-    <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
+    <link rel="icon" href="./favicon.ico" type="image/x-icon" />
   </head>
   <style>
     body {
@@ -35,6 +35,18 @@
       justify-content: center;
     }
 
+    #background {
+      width: 730px;
+      height: 600px;
+    }
+
+    canvas {
+      border-radius: 1000px;
+      position: fixed;
+      bottom: 154px;
+      left: 230px;
+    }
+
     #footer {
       color: #404040;
       font-size: 20px;
@@ -52,6 +64,7 @@
       <h1 id="title">죽림고수</h1>
       <p id="seconds"></p>
     </div>
+    <img id="background" />
     <div id="canvas"></div>
     <footer id="footer">
       made by

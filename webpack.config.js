@@ -7,6 +7,7 @@ module.exports = {
   output: {
     filename: "main.js",
     path: path.resolve(__dirname, "dist"),
+    clean: true,
   },
   devServer: {
     static: {
@@ -17,42 +18,17 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: "./src/index.html",
+      favicon: "./src/favicon.ico",
     }),
   ],
   module: {
     rules: [
       {
-        test: /\.(gif|png|jpe?g|svg)$/i,
-        use: [
-          {
-            loader: "file-loader",
-            options: {
-              name: "assets/images/[name].[ext]",
-            },
-          },
-          {
-            loader: "image-webpack-loader",
-            options: {
-              mozjpeg: {
-                progressive: true,
-                quality: 65,
-              },
-              optipng: {
-                enabled: true,
-              },
-              pngquant: {
-                quality: [0.65, 0.9],
-                speed: 4,
-              },
-              gifsicle: {
-                interlaced: false,
-              },
-              webp: {
-                quality: 75,
-              },
-            },
-          },
-        ],
+        test: /\.(gif|png|jpe?g|svg|ico)$/i,
+        type: "asset/resource",
+        generator: {
+          filename: "assets/[name][ext]",
+        },
       },
     ],
   },

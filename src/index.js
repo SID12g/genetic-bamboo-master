@@ -1,5 +1,6 @@
 import p5 from "p5";
 import catImage from "./assets/cat.png";
+import backgroundImage from "./assets/background.png";
 
 let cat;
 let catScalar = 0.1;
@@ -14,10 +15,14 @@ const sketch = (p) => {
   };
 
   p.setup = () => {
-    const canvas = p.createCanvas(880, 600);
+    const canvas = p.createCanvas(562, 562);
     canvas.parent("canvas");
-    x = 440;
-    y = 300;
+
+    const backgroundImg = document.getElementById("background");
+    backgroundImg.src = backgroundImage;
+
+    x = 281;
+    y = 281;
     isMovingLeft = false;
     isMovingRight = false;
     isMovingUp = false;
@@ -38,10 +43,24 @@ const sketch = (p) => {
   };
 
   p.draw = () => {
-    p.background(220);
+    p.background(32, 34, 57);
 
     const catWidth = cat.width * catScalar;
     const catHeight = cat.height * catScalar;
+
+    const centerX = p.width / 2;
+    const centerY = p.height / 2;
+    const radius = p.width / 2;
+
+    const catCenterX = x + catWidth / 2;
+    const catCenterY = y + catHeight / 2;
+
+    const distance = p.dist(centerX, centerY, catCenterX, catCenterY);
+    if (distance + catWidth / 2 > radius) {
+      const angle = p.atan2(catCenterY - centerY, catCenterX - centerX);
+      x = centerX + (radius - catWidth / 2) * p.cos(angle) - catWidth / 2;
+      y = centerY + (radius - catHeight / 2) * p.sin(angle) - catHeight / 2;
+    }
 
     if (isMovingUp && y > 0) {
       y -= 5;
