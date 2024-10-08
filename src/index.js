@@ -3,7 +3,7 @@ import catImage from "./assets/cat.png";
 import backgroundImage from "./assets/background.png";
 
 let cat;
-let catScalar = 0.1;
+let catScalar = 0.05;
 let x, y;
 let isMovingLeft, isMovingRight, isMovingUp, isMovingDown;
 let startTime;
