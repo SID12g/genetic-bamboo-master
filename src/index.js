@@ -5,6 +5,8 @@ let cat;
 let catScalar = 0.1;
 let x, y;
 let isMovingLeft, isMovingRight, isMovingUp, isMovingDown;
+let startTime;
+let seconds = 0;
 
 const sketch = (p) => {
   p.preload = () => {
@@ -22,19 +24,25 @@ const sketch = (p) => {
     isMovingDown = false;
 
     const secondsOutput = document.getElementById("seconds");
-    if (secondsOutput) {
-      secondsOutput.innerText = "N초";
-    }
+    startTime = p.millis();
+
+    const updateSeconds = () => {
+      seconds = (p.millis() - startTime) / 1000;
+      if (secondsOutput) {
+        secondsOutput.innerText = `${seconds.toFixed(2)}초`;
+      }
+      requestAnimationFrame(updateSeconds);
+    };
+
+    updateSeconds();
   };
 
   p.draw = () => {
     p.background(220);
 
-    // 이미지 크기 조절
     const catWidth = cat.width * catScalar;
     const catHeight = cat.height * catScalar;
 
-    // 이미지 이동
     if (isMovingUp && y > 0) {
       y -= 5;
     }
