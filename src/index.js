@@ -11,6 +11,7 @@ let arrows = [];
 let arrowSpeed = 2;
 let arrowSpawnInterval = 1000;
 let lastMultipleArrowTime = 0;
+const radius = 281;
 
 const sketch = (p) => {
   p.preload = () => {
@@ -54,6 +55,13 @@ const sketch = (p) => {
     }
     if (isMovingRight && x < p.width - catWidth) {
       x += 5;
+    }
+
+    const distFromCenter = p.dist(x, y, 281, 281);
+    if (distFromCenter + catWidth / 2 > radius) {
+      const angle = Math.atan2(y - 281, x - 281);
+      x = 281 + (radius - catWidth / 2) * Math.cos(angle);
+      y = 281 + (radius - catWidth / 2) * Math.sin(angle);
     }
 
     for (let i = arrows.length - 1; i >= 0; i--) {
