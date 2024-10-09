@@ -42,13 +42,14 @@
     #background {
       width: 730px;
       height: 600px;
+      position: absolute;
     }
 
     canvas {
       border-radius: 1000px;
-      position: fixed;
-      bottom: 154px;
-      left: 230px;
+      position: relative;
+      top: 11px;
+      left: 114px;
     }
 
     #footer {
@@ -68,8 +69,10 @@
       <h1 id="title">죽림고수</h1>
       <p id="seconds"></p>
     </div>
-    <img id="background" />
-    <div id="canvas"></div>
+    <div style="width: 730px; height: 600px">
+      <img id="background" />
+      <div id="canvas"></div>
+    </div>
     <footer id="footer">
       made by
       <a
