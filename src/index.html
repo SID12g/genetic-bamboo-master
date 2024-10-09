@@ -11,32 +11,18 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-    }
-
-    #wrap {
-      display: flex;
-      justify-content: space-between;
-      width: 730px;
-    }
-
-    #title {
-      font-size: 32px;
-      background: linear-gradient(to bottom, #34a2ff, #cde751);
-      background-clip: text;
-      color: transparent;
+      height: 100vh;
+      overflow: hidden;
     }
 
     #seconds {
-      background: linear-gradient(45deg, #c7e35a, #609106);
+      position: relative;
       color: #ffffff;
       font-size: 20px;
-      width: 120px;
-      height: 48px;
-      border-radius: 16px;
       font-weight: 600;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      top: -8px;
+      right: 24px;
+      text-align: end;
     }
 
     #background {
@@ -48,39 +34,42 @@
     canvas {
       border-radius: 1000px;
       position: relative;
-      top: 11px;
+      top: -52px;
       left: 114px;
     }
 
     #footer {
-      color: #404040;
-      font-size: 20px;
-      margin-top: 40px;
+      color: grey;
+      text-align: center;
+      margin-bottom: 28px;
+      font-size: 16px;
+      font-weight: 400;
+      position: fixed;
+      bottom: 4px;
     }
 
     #link {
+      color: grey;
+      text-align: center;
+      margin-bottom: 28px;
+      font-size: 16px;
+      font-weight: 400;
       text-decoration: none;
-      color: #000000;
-      font-weight: 600;
+    }
+
+    #link:hover {
+      font-weight: 500;
     }
   </style>
   <body>
-    <div id="wrap">
-      <h1 id="title">죽림고수</h1>
-      <p id="seconds"></p>
-    </div>
-    <div style="width: 730px; height: 600px">
+    <div style="width: 730px; height: 600px; margin-top: 60px">
       <img id="background" />
+      <p id="seconds"></p>
       <div id="canvas"></div>
     </div>
     <footer id="footer">
-      made by
-      <a
-        id="link"
-        target="_blank"
-        href="https://github.com/sid12g/bamboo-master"
-        >sid12g</a
-      >
+      Made By
+      <a id="link" href="https://github.com/sid12g/bamboo-master"> sid12g </a>
     </footer>
   </body>
 </html>

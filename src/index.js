@@ -7,7 +7,10 @@ let catScalar = 0.05;
 let x, y;
 let isMovingLeft, isMovingRight, isMovingUp, isMovingDown;
 let startTime;
-let seconds = 0;
+let arrows = [];
+let arrowSpeed = 2;
+let arrowSpawnInterval = 1000;
+let lastMultipleArrowTime = 0;
 
 const sketch = (p) => {
   p.preload = () => {
@@ -28,16 +31,8 @@ const sketch = (p) => {
     isMovingUp = false;
     isMovingDown = false;
 
-    const secondsOutput = document.getElementById("seconds");
     startTime = p.millis();
-
-    const updateSeconds = () => {
-      seconds = (p.millis() - startTime) / 1000;
-      if (secondsOutput) {
-        secondsOutput.innerText = `${seconds.toFixed(2)}초`;
-      }
-      requestAnimationFrame(updateSeconds);
-    };
+    setInterval(spawnArrow, arrowSpawnInterval);
 
     updateSeconds();
   };
@@ -47,20 +42,6 @@ const sketch = (p) => {
 
     const catWidth = cat.width * catScalar;
     const catHeight = cat.height * catScalar;
-
-    const centerX = p.width / 2;
-    const centerY = p.height / 2;
-    const radius = p.width / 2;
-
-    const catCenterX = x + catWidth / 2;
-    const catCenterY = y + catHeight / 2;
-
-    const distance = p.dist(centerX, centerY, catCenterX, catCenterY);
-    if (distance + catWidth / 2 > radius) {
-      const angle = p.atan2(catCenterY - centerY, catCenterX - centerX);
-      x = centerX + (radius - catWidth / 2) * p.cos(angle) - catWidth / 2;
-      y = centerY + (radius - catHeight / 2) * p.sin(angle) - catHeight / 2;
-    }
 
     if (isMovingUp && y > 0) {
       y -= 5;
@@ -75,7 +56,58 @@ const sketch = (p) => {
       x += 5;
     }
 
+    for (let i = arrows.length - 1; i >= 0; i--) {
+      const arrow = arrows[i];
+      arrow.x += arrow.vx * arrowSpeed;
+      arrow.y += arrow.vy * arrowSpeed;
+
+      if (
+        arrow.x < 0 ||
+        arrow.x > p.width ||
+        arrow.y < 0 ||
+        arrow.y > p.height
+      ) {
+        arrows.splice(i, 1);
+        continue;
+      }
+
+      if (
+        p.dist(arrow.x, arrow.y, x + catWidth / 2, y + catHeight / 2) <
+        catWidth / 2
+      ) {
+        p.noLoop();
+        alert(`${(p.millis() / 1000).toFixed(2)}초를 버텨냈어요! 😺`);
+        location.reload();
+        return;
+      }
+
+      p.stroke(255, 255, 255);
+      p.strokeWeight(4);
+      p.line(
+        arrow.x,
+        arrow.y,
+        arrow.x - arrow.vx * 10,
+        arrow.y - arrow.vy * 10
+      );
+    }
+
     p.image(cat, x, y, catWidth, catHeight);
+
+    setInterval(() => {
+      arrowSpeed += 0.0005;
+    }, 3000);
+
+    if (p.millis() - startTime > 10000) {
+      arrowSpawnInterval = Math.max(500, arrowSpawnInterval - 100);
+
+      setInterval(spawnArrow, arrowSpawnInterval);
+      startTime = p.millis();
+    }
+
+    if (p.millis() / 1000 - lastMultipleArrowTime >= 10) {
+      spawnMultipleArrows(((p.millis() / 1000) * 3) / 5 + 10);
+      lastMultipleArrowTime = p.millis() / 1000;
+    }
   };
 
   p.keyPressed = () => {
@@ -107,6 +139,71 @@ const sketch = (p) => {
       isMovingRight = false;
     }
   };
+
+  function spawnArrow() {
+    const edge = Math.floor(Math.random() * 4);
+    let arrow = { x: 0, y: 0, vx: 0, vy: 0 };
+
+    switch (edge) {
+      case 0:
+        arrow.x = Math.random() * p.width;
+        arrow.y = 0;
+        arrow.vx =
+          (p.width / 2 - arrow.x) /
+          p.dist(arrow.x, arrow.y, p.width / 2, p.height / 2);
+        arrow.vy =
+          (p.height / 2 - arrow.y) /
+          p.dist(arrow.x, arrow.y, p.width / 2, p.height / 2);
+        break;
+      case 1:
+        arrow.x = p.width;
+        arrow.y = Math.random() * p.height;
+        arrow.vx =
+          (p.width / 2 - arrow.x) /
+          p.dist(arrow.x, arrow.y, p.width / 2, p.height / 2);
+        arrow.vy =
+          (p.height / 2 - arrow.y) /
+          p.dist(arrow.x, arrow.y, p.width / 2, p.height / 2);
+        break;
+      case 2:
+        arrow.x = Math.random() * p.width;
+        arrow.y = p.height;
+        arrow.vx =
+          (p.width / 2 - arrow.x) /
+          p.dist(arrow.x, arrow.y, p.width / 2, p.height / 2);
+        arrow.vy =
+          (p.height / 2 - arrow.y) /
+          p.dist(arrow.x, arrow.y, p.width / 2, p.height / 2);
+        break;
+      case 3:
+        arrow.x = 0;
+        arrow.y = Math.random() * p.height;
+        arrow.vx =
+          (p.width / 2 - arrow.x) /
+          p.dist(arrow.x, arrow.y, p.width / 2, p.height / 2);
+        arrow.vy =
+          (p.height / 2 - arrow.y) /
+          p.dist(arrow.x, arrow.y, p.width / 2, p.height / 2);
+        break;
+    }
+
+    arrows.push(arrow);
+  }
+
+  function spawnMultipleArrows(count) {
+    for (let i = 0; i < count; i++) {
+      spawnArrow();
+    }
+  }
+
+  function updateSeconds() {
+    const secondsOutput = document.getElementById("seconds");
+    if (secondsOutput) {
+      secondsOutput.innerText = `${(p.millis() / 1000).toFixed(2)}초`;
+    }
+
+    requestAnimationFrame(updateSeconds);
+  }
 };
 
 new p5(sketch);
