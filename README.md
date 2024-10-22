@@ -6,6 +6,14 @@
 
 나는 죽림고수 고수가 될테야
 
+죽림고수: https://github.com/SID12g/bamboo-master
+
+죽림고수 블로그 포스트: https://post.sid12g.dev/tech/posts/bamboo-master
+
+유전 알고리즘, 인공 신경망 블로그 포스트: https://post.sid12g.dev/tech/posts/genetic-network
+
+유튜브: https://www.youtube.com/watch?v=aMuCE-CbLeQ
+
 ## 기술 스택
 
 | 역할          | 스택                                                                                                                                                                                               |
