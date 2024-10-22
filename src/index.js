@@ -8,11 +8,16 @@ let catScalar = 0.05;
 let cats = [];
 let arrows = [];
 let arrowSpeed = 2;
-let arrowSpawnInterval = 300;
+let arrowSpawnInterval = (Math.random() * 0.5 + 0.5) * 1000;
+setInterval(() => {
+  arrowSpawnInterval = (Math.random() * 0.5 + 0.5) * 1000;
+}, 500);
 let lastMultipleArrowTime = 0;
 const radius = 281;
 let generation = 1;
 let startTime = Date.now();
+let brains = [];
+let records = [];
 
 let L_Dx = 0;
 let L_Dy = 0;
@@ -34,7 +39,6 @@ class Cat {
   }
 
   think(arrows, p) {
-    // 현재 위치에서 가장 가까운 화살을 찾습니다.
     let closestArrow = null;
     let minDistance = Infinity;
 
@@ -48,7 +52,7 @@ class Cat {
 
     const K = 5000;
     if (closestArrow) {
-      console.log("Closest Arrow:", closestArrow); // closestArrow를 콘솔에 기록
+      // console.log("Closest Arrow:", closestArrow); // closestArrow를 콘솔에 기록
       const inputs = [
         this.x * K,
         this.y * K,
@@ -57,33 +61,31 @@ class Cat {
         closestArrow.vx * K,
         closestArrow.vy * K,
       ];
-      console.log("Inputs:", inputs); // 입력값을 콘솔에 기록
+      // console.log("Inputs:", inputs);
 
       const output = this.brain.activate(inputs);
-      console.log("Output:", output); // 출력값을 콘솔에 기록
+      // console.log("Output:", output);
 
-      // 출력 값을 콘솔에 기록
-      console.log(
-        `${this.index}번: Output: Up: ${output[0]}, Down: ${output[1]}, Left: ${output[2]}, Right: ${output[3]}, x: ${this.x}, y: ${this.y}`
-      );
+      // console.log(
+      //   `${this.index}번: Output: Up: ${output[0]}, Down: ${output[1]}, Left: ${output[2]}, Right: ${output[3]}, x: ${this.x}, y: ${this.y}`
+      // );
 
       const Dy = output[0] - output[1];
       const Dx = output[2] - output[3];
       if (Dy > 0 && this.y < p.height) {
         this.y += Dy * 10;
-      } else if (Dy < 0 && this.y > 0) {
+      } else if (Dy < 0 && this.y + catImage.height * catScalar > 0) {
         this.y += Dy * 10;
       }
-      if (Dx > 0 && this.x < p.width) {
+      if (Dx > 0 && this.x + catImage.weight * catScalar < p.width) {
         this.x += Dx * 10;
       } else if (Dx < 0 && this.x > 0) {
         this.x += Dx * 10;
       }
 
-      // 원의 중심에서 이탈하는 것을 방지
       const centerX = p.width / 2;
       const centerY = p.height / 2;
-      const radius = Math.min(p.width, p.height) / 2;
+      const radius = Math.min(p.width, p.height) / 2 - 10;
 
       const distanceFromCenter = Math.sqrt(
         (this.x - centerX) ** 2 + (this.y - centerY) ** 2
@@ -114,21 +116,13 @@ const setupNeuralNetwork = () => {
 
   return network;
 };
-// const generateCats = (brain1, brain2) => {
-//   generation++;
-//   cats = [];
-//   for (let i = 0; i < 10; i++) {
-//     cats.push(new Cat(281, 281));
-//   }
-// };
 
 const mutate = (network) => {
   network.layers.hidden.forEach((layer) => {
     layer.list.forEach((neuron) => {
       Object.values(neuron.connections.projected).forEach((connection) => {
         if (Math.random() < 0.1) {
-          // 10% 확률로 돌연변이 발생
-          connection.weight += Math.random() * 0.2 - 0.1; // -0.1 ~ 0.1 사이의 값 추가
+          connection.weight += Math.random() * 0.2 - 0.1;
         }
       });
     });
@@ -163,16 +157,16 @@ const generateCats = (brain1, brain2) => {
   for (let i = 0; i < 10; i++) {
     let newBrain;
     if (brain1 && brain2) {
-      newBrain = crossover(brain1, brain2); // 두 부모 신경망을 교차
-      mutate(newBrain); // 돌연변이 적용
+      newBrain = crossover(brain1, brain2);
+      mutate(newBrain);
     } else {
-      newBrain = setupNeuralNetwork(); // 초기 세대는 새로운 신경망으로 생성
+      newBrain = setupNeuralNetwork();
     }
 
     const newCat = new Cat(281, 281, i);
-    newCat.brain = newBrain; // 새로운 신경망을 적용
+    newCat.brain = newBrain;
     cats.push(newCat);
-    console.log(newCat.brain);
+    // console.log(newCat.brain);
   }
 };
 
@@ -211,7 +205,6 @@ const sketch = (p) => {
       if (cat.alive) {
         cat.think(arrows, p);
 
-        // Check collision with arrows
         arrows.forEach((arrow) => {
           if (checkCollision(cat, arrow, p)) {
             cat.alive = false;
@@ -219,7 +212,6 @@ const sketch = (p) => {
           }
         });
 
-        // Draw cat
         p.image(
           catImage,
           cat.x,
@@ -258,11 +250,15 @@ const sketch = (p) => {
     if (cats.every((cat) => !cat.alive)) {
       arrows = [];
       cats.sort((a, b) => b.survive - a.survive);
-      console.log(cats);
+      // console.log(cats);
       const generationElement = document.getElementById("generation");
       generationElement.innerText = `${generation}세대`;
-      console.log("end");
-      console.log(cats[0].brain, cats[1].brain);
+      // console.log("end");
+      brains[generation - 1] = [cats[0].brain, cats[1].brain];
+      records[generation - 1] = cats[0].survive;
+      // console.log(cats[0].brain, cats[1].brain);
+      console.log(brains);
+      console.log(records);
       generateCats(cats[0].brain, cats[1].brain);
       startTime = Date.now();
     }
@@ -278,93 +274,43 @@ const sketch = (p) => {
     }
   };
 
-  // function spawnArrow() {
-  //   const edge = Math.floor(Math.random() * 4);
-  //   let arrow = { x: 0, y: 0, vx: 0, vy: 0 };
-
-  //   switch (edge) {
-  //     case 0:
-  //       arrow.x = Math.random() * p.width;
-  //       arrow.y = 0;
-  //       arrow.vx =
-  //         (p.width / 2 - arrow.x) /
-  //         p.dist(arrow.x, arrow.y, p.width / 2, p.height / 2);
-  //       arrow.vy =
-  //         (p.height / 2 - arrow.y) /
-  //         p.dist(arrow.x, arrow.y, p.width / 2, p.height / 2);
-  //       break;
-  //     case 1:
-  //       arrow.x = p.width;
-  //       arrow.y = Math.random() * p.height;
-  //       arrow.vx =
-  //         (p.width / 2 - arrow.x) /
-  //         p.dist(arrow.x, arrow.y, p.width / 2, p.height / 2);
-  //       arrow.vy =
-  //         (p.height / 2 - arrow.y) /
-  //         p.dist(arrow.x, arrow.y, p.width / 2, p.height / 2);
-  //       break;
-  //     case 2:
-  //       arrow.x = Math.random() * p.width;
-  //       arrow.y = p.height;
-  //       arrow.vx =
-  //         (p.width / 2 - arrow.x) /
-  //         p.dist(arrow.x, arrow.y, p.width / 2, p.height / 2);
-  //       arrow.vy =
-  //         (p.height / 2 - arrow.y) /
-  //         p.dist(arrow.x, arrow.y, p.width / 2, p.height / 2);
-  //       break;
-  //     case 3:
-  //       arrow.x = 0;
-  //       arrow.y = Math.random() * p.height;
-  //       arrow.vx =
-  //         (p.width / 2 - arrow.x) /
-  //         p.dist(arrow.x, arrow.y, p.width / 2, p.height / 2);
-  //       arrow.vy =
-  //         (p.height / 2 - arrow.y) /
-  //         p.dist(arrow.x, arrow.y, p.width / 2, p.height / 2);
-  //       break;
-  //   }
-
-  //   arrows.push(arrow);
-  // }
-
   function spawnArrow() {
     const edge = Math.floor(Math.random() * 4);
     let arrow = { x: 0, y: 0, vx: 0, vy: 0 };
-    const angleOffset = (Math.random() * Math.PI) / 6; // 방향의 랜덤함을 위한 작은 각도 오프셋
+    const angleOffset = (Math.random() * Math.PI) / 6;
 
     switch (edge) {
-      case 0: // 상단 가장자리
+      case 0:
         arrow.x = Math.random() * p.width;
         arrow.y = 0;
-        // 위쪽에서 아래쪽으로 향하게
+
         const angle0 =
           Math.PI / 2 + (Math.random() < 0.5 ? -angleOffset : angleOffset);
         arrow.vx = Math.cos(angle0) * arrowSpeed;
         arrow.vy = Math.sin(angle0) * arrowSpeed;
         break;
-      case 1: // 오른쪽 가장자리
+      case 1:
         arrow.x = p.width;
         arrow.y = Math.random() * p.height;
-        // 오른쪽에서 왼쪽으로 향하게
+
         const angle1 =
           Math.PI + (Math.random() < 0.5 ? -angleOffset : angleOffset);
         arrow.vx = Math.cos(angle1) * arrowSpeed;
         arrow.vy = Math.sin(angle1) * arrowSpeed;
         break;
-      case 2: // 하단 가장자리
+      case 2:
         arrow.x = Math.random() * p.width;
         arrow.y = p.height;
-        // 아래쪽에서 위쪽으로 향하게
+
         const angle2 =
           -Math.PI / 2 + (Math.random() < 0.5 ? -angleOffset : angleOffset);
         arrow.vx = Math.cos(angle2) * arrowSpeed;
         arrow.vy = Math.sin(angle2) * arrowSpeed;
         break;
-      case 3: // 왼쪽 가장자리
+      case 3:
         arrow.x = 0;
         arrow.y = Math.random() * p.height;
-        // 왼쪽에서 오른쪽으로 향하게
+
         const angle3 = Math.random() < 0.5 ? angleOffset : -angleOffset;
         arrow.vx = Math.cos(angle3) * arrowSpeed;
         arrow.vy = Math.sin(angle3) * arrowSpeed;
