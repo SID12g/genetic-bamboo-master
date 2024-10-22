@@ -13,21 +13,19 @@ setInterval(() => {
   arrowSpawnInterval = (Math.random() * 0.5 + 0.5) * 1000;
 }, 500);
 let lastMultipleArrowTime = 0;
-const radius = 281;
 let generation = 1;
 let startTime = Date.now();
 let brains = [];
 let records = [];
 
-let L_Dx = 0;
-let L_Dy = 0;
-
+/** 현재 시간 */
 const getElapsedTime = () => {
   const currentTime = Date.now();
   const elapsedTime = (currentTime - startTime) / 1000;
   return elapsedTime.toFixed(2);
 };
 
+/** 고양이 클래스 */
 class Cat {
   constructor(x, y, index) {
     this.x = x;
@@ -38,6 +36,7 @@ class Cat {
     this.survive;
   }
 
+  /** 고양이 움직임 판단 */
   think(arrows, p) {
     let closestArrow = null;
     let minDistance = Infinity;
@@ -52,7 +51,7 @@ class Cat {
 
     const K = 5000;
     if (closestArrow) {
-      // console.log("Closest Arrow:", closestArrow); // closestArrow를 콘솔에 기록
+      console.log("Closest Arrow:", closestArrow);
       const inputs = [
         this.x * K,
         this.y * K,
@@ -61,14 +60,14 @@ class Cat {
         closestArrow.vx * K,
         closestArrow.vy * K,
       ];
-      // console.log("Inputs:", inputs);
+      console.log("Inputs:", inputs);
 
       const output = this.brain.activate(inputs);
-      // console.log("Output:", output);
+      console.log("Output:", output);
 
-      // console.log(
-      //   `${this.index}번: Output: Up: ${output[0]}, Down: ${output[1]}, Left: ${output[2]}, Right: ${output[3]}, x: ${this.x}, y: ${this.y}`
-      // );
+      console.log(
+        `${this.index}번: Output: Up: ${output[0]}, Down: ${output[1]}, Left: ${output[2]}, Right: ${output[3]}, x: ${this.x}, y: ${this.y}`
+      );
 
       const Dy = output[0] - output[1];
       const Dx = output[2] - output[3];
@@ -99,24 +98,27 @@ class Cat {
     }
   }
 }
+
+/** 고양이 인공 신경망 구조 */
 const setupNeuralNetwork = () => {
   const inputLayer = new Layer(6);
-  const hiddenLayer1 = new Layer(8);
+  const hiddenLayer = new Layer(8);
   const outputLayer = new Layer(4);
 
-  inputLayer.project(hiddenLayer1);
+  inputLayer.project(hiddenLayer);
 
-  hiddenLayer1.project(outputLayer);
+  hiddenLayer.project(outputLayer);
 
   const network = new Network({
     input: inputLayer,
-    hidden: [hiddenLayer1],
+    hidden: [hiddenLayer],
     output: outputLayer,
   });
 
   return network;
 };
 
+/** 돌연변이 생성 */
 const mutate = (network) => {
   network.layers.hidden.forEach((layer) => {
     layer.list.forEach((neuron) => {
@@ -129,6 +131,7 @@ const mutate = (network) => {
   });
 };
 
+/** 상위 2개 brain을 랜덤으로 결정한 후 다음 세대에 상속 */
 const crossover = (brain1, brain2) => {
   const newBrain = setupNeuralNetwork();
   newBrain.layers.hidden.forEach((layer, i) => {
@@ -150,6 +153,7 @@ const crossover = (brain1, brain2) => {
   return newBrain;
 };
 
+/** 새 세대 고양이 생성 */
 const generateCats = (brain1, brain2) => {
   generation++;
   cats = [];
@@ -166,21 +170,24 @@ const generateCats = (brain1, brain2) => {
     const newCat = new Cat(281, 281, i);
     newCat.brain = newBrain;
     cats.push(newCat);
-    // console.log(newCat.brain);
   }
 };
 
+/** 현재 남은 개체 수 */
 const updateRemainingCats = () => {
   const remainingCats = cats.filter((cat) => cat.alive).length;
   const remainingCatsElement = document.getElementById("remain");
   remainingCatsElement.innerText = `남은 개체 수: ${remainingCats}`;
 };
 
+/** p5.js 함수 */
 const sketch = (p) => {
+  /** 고양이 캐릭터 로딩 */
   p.preload = () => {
     catImage = p.loadImage(catImageSrc);
   };
 
+  /** 초기 설정 (1번만 실행됨) */
   p.setup = () => {
     const canvas = p.createCanvas(562, 562);
     canvas.parent("canvas");
@@ -198,9 +205,11 @@ const sketch = (p) => {
     updateRemainingCats();
   };
 
+  /** 반복 실행 설정 (반복됨) */
   p.draw = () => {
     p.background(32, 34, 57);
 
+    /** 생존 중인 고양이에 대한 함수 */
     cats.forEach((cat) => {
       if (cat.alive) {
         cat.think(arrows, p);
@@ -222,6 +231,7 @@ const sketch = (p) => {
       }
     });
 
+    /** 화살 모양 함수 */
     arrows.forEach((arrow) => {
       arrow.x += arrow.vx * arrowSpeed;
       arrow.y += arrow.vy * arrowSpeed;
@@ -247,33 +257,35 @@ const sketch = (p) => {
 
     updateRemainingCats();
 
+    /** 모든 개체가 죽은 경우 */
     if (cats.every((cat) => !cat.alive)) {
       arrows = [];
       cats.sort((a, b) => b.survive - a.survive);
-      // console.log(cats);
       const generationElement = document.getElementById("generation");
       generationElement.innerText = `${generation}세대`;
-      // console.log("end");
       brains[generation - 1] = [cats[0].brain, cats[1].brain];
       records[generation - 1] = cats[0].survive;
-      // console.log(cats[0].brain, cats[1].brain);
+      console.log(cats[0].brain, cats[1].brain);
       console.log(brains);
       console.log(records);
       generateCats(cats[0].brain, cats[1].brain);
       startTime = Date.now();
     }
 
+    /** 화살 생성 간격 조절 */
     if (getElapsedTime() - startTime > 10000) {
       arrowSpawnInterval = Math.max(500, arrowSpawnInterval - 100);
       startTime = getElapsedTime();
     }
 
+    /** 동시에 많은 화살 생성 간격 */
     if (getElapsedTime() / 1000 - lastMultipleArrowTime >= 10) {
       spawnMultipleArrows(((getElapsedTime() / 1000) * 3) / 5 + 10);
       lastMultipleArrowTime = getElapsedTime() / 1000;
     }
   };
 
+  /** 화살 생성 */
   function spawnArrow() {
     const edge = Math.floor(Math.random() * 4);
     let arrow = { x: 0, y: 0, vx: 0, vy: 0 };
@@ -320,12 +332,14 @@ const sketch = (p) => {
     arrows.push(arrow);
   }
 
+  /** 동시 화살 생성 */
   function spawnMultipleArrows(count) {
     for (let i = 0; i < count; i++) {
       spawnArrow();
     }
   }
 
+  /** UI 시간 업데이트 */
   function updateSeconds() {
     const secondsOutput = document.getElementById("seconds");
     if (secondsOutput) {
@@ -335,6 +349,7 @@ const sketch = (p) => {
     requestAnimationFrame(updateSeconds);
   }
 
+  /** 고양이 위치 및 화살 인식 오류 제거 */
   function checkCollision(cat, arrow, p) {
     const catLeft = cat.x;
     const catRight = cat.x + catImage.width * catScalar;
