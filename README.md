@@ -4,7 +4,7 @@
 
 # bamboo-master
 
-나는 죽림고수 고수가 될테야
+고양이들은 죽림고수 고수가 될테야
 
 죽림고수: https://github.com/SID12g/bamboo-master
 
